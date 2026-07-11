@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
+import { useMock } from '../../firebase/config';
 import { FiMail, FiLock, FiEye, FiEyeOff, FiLoader } from 'react-icons/fi';
 import Swal from 'sweetalert2';
 
@@ -197,21 +198,23 @@ export default function Login() {
       </div>
 
       {/* Demo Credentials Alert Box (VIVA SPECIAL FEATURE) */}
-      <div className="mt-8 p-4 rounded-2xl bg-primary-500/5 dark:bg-primary-500/10 border border-primary-500/10 dark:border-primary-500/20 text-left">
-        <h4 className="text-[10px] font-bold text-primary-500 tracking-wider uppercase mb-1.5">
-          Quick Demo Accounts
-        </h4>
-        <div className="space-y-1 text-slate-500 dark:text-slate-400 text-xs">
-          <div>
-            <span className="font-bold text-slate-700 dark:text-slate-300">Student:</span>{' '}
-            <code className="text-[10px] bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded text-primary-600 dark:text-primary-400">student@campus.edu</code> (pass: `password123`)
-          </div>
-          <div>
-            <span className="font-bold text-slate-700 dark:text-slate-300">Admin:</span>{' '}
-            <code className="text-[10px] bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded text-primary-600 dark:text-primary-400">admin@campus.edu</code> (pass: `admin123`)
+      {useMock && (
+        <div className="mt-8 p-4 rounded-2xl bg-primary-500/5 dark:bg-primary-500/10 border border-primary-500/10 dark:border-primary-500/20 text-left">
+          <h4 className="text-[10px] font-bold text-primary-500 tracking-wider uppercase mb-1.5">
+            Quick Demo Accounts
+          </h4>
+          <div className="space-y-1 text-slate-500 dark:text-slate-400 text-xs">
+            <div>
+              <span className="font-bold text-slate-700 dark:text-slate-300">Student:</span>{' '}
+              <code className="text-[10px] bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded text-primary-600 dark:text-primary-400">student@campus.edu</code> (pass: `password123`)
+            </div>
+            <div>
+              <span className="font-bold text-slate-700 dark:text-slate-300">Admin:</span>{' '}
+              <code className="text-[10px] bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded text-primary-600 dark:text-primary-400">admin@campus.edu</code> (pass: `admin123`)
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
