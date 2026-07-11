@@ -47,8 +47,9 @@ export default function Topbar({ setSidebarOpen, collapsed, setCollapsed }) {
   }, []);
 
   return (
-    <header className="h-16 border-b border-slate-200 dark:border-dark-border bg-white/80 dark:bg-dark-card/85 backdrop-blur-md fixed top-0 right-0 z-20 flex items-center justify-between px-6 transition-all duration-300 left-0 md:left-20 lg:left-64"
-      style={{ left: collapsed ? '5rem' : '16rem' }}
+    <header className={`h-16 border-b border-slate-200 dark:border-dark-border bg-white/80 dark:bg-dark-card/85 backdrop-blur-md fixed top-0 right-0 z-20 flex items-center justify-between px-6 transition-all duration-300 left-0 ${
+      collapsed ? 'md:left-20' : 'md:pl-0 md:left-64'
+    }`}
     >
       {/* Left section: Hamburger / Toggle */}
       <div className="flex items-center gap-4">

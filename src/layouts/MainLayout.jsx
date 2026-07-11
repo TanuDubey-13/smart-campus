@@ -56,8 +56,6 @@ export default function MainLayout({ children }) {
 
       {/* 3. Main Dashboard Body Wrapper */}
       <div 
-        className="flex flex-col min-h-screen transition-all duration-300"
-        style={{ paddingLeft: collapsed ? '5rem' : '16rem' }}
         className={`flex flex-col min-h-screen transition-all duration-300 ${
           collapsed ? 'md:pl-20' : 'md:pl-64'
         } pl-0`}
