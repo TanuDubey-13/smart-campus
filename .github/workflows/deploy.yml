@@ -31,7 +31,7 @@ jobs:
           cache: 'npm'
 
       - name: Install Dependencies
-        run: npm ci
+        run: npm install --legacy-peer-deps
 
       # Injects secrets securely from repository variables into env variables during build phase
       - name: Build Production Bundle
