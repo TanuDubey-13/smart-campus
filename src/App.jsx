@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
 import { ProtectedRoute } from './routes/ProtectedRoute';
@@ -46,7 +46,7 @@ export default function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <BrowserRouter>
+        <HashRouter>
           <Routes>
             {/* 1. Public Authentication Routes */}
             <Route 
@@ -185,7 +185,7 @@ export default function App() {
             draggable 
             theme="colored"
           />
-        </BrowserRouter>
+        </HashRouter>
       </AuthProvider>
     </ThemeProvider>
   );
