@@ -1,0 +1,46 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    function isImage() {
+      return request.resource.contentType.matches('image/.*');
+    }
+    function isAllowedImage() {
+      return isImage() && (
+        request.resource.contentType == 'image/jpeg' || 
+        request.resource.contentType == 'image/jpg' || 
+        request.resource.contentType == 'image/png' || 
+        request.resource.contentType == 'image/webp'
+      );
+    }
+    function isLessThan5MB() {
+      return request.resource.size < 5 * 1024 * 1024;
+    }
+
+    // Profile pictures
+    match /profiles/{userId}/{allPaths=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && request.auth.uid == userId && isAllowedImage() && isLessThan5MB();
+    }
+
+    // Complaint attachments
+    match /complaints/{complaintId}/{allPaths=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && isAllowedImage() && isLessThan5MB();
+    }
+
+    // Lost & Found attachments
+    match /lostFound/{itemId}/{allPaths=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && isAllowedImage() && isLessThan5MB();
+    }
+    
+    // Event banners
+    match /events/{eventId}/{allPaths=**} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated() && isAllowedImage() && isLessThan5MB();
+    }
+  }
+}
