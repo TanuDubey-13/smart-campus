@@ -192,20 +192,35 @@ erDiagram
 
 ### Use Case Diagram
 ```mermaid
-usecaseDiagram
-    actor Student
-    actor Admin
+flowchart LR
+    %% Actors
+    Student(((Student)))
+    Admin(((Admin)))
 
-    Student --> (Submit Complaint)
-    Student --> (Report Lost/Found)
-    Student --> (Register for Events)
-    Student --> (Edit Profile)
+    %% Student Actions
+    UC1([Submit Complaint])
+    UC2([Report Lost/Found])
+    UC3([Register for Events])
+    UC4([Edit Profile])
 
-    Admin --> (Resolve Complaints)
-    Admin --> (Publish Notices)
-    Admin --> (Create Events)
-    Admin --> (Moderate Lost/Found)
-    Admin --> (View System Analytics)
+    %% Admin Actions
+    UC5([Resolve Complaints])
+    UC6([Publish Notices])
+    UC7([Create Events])
+    UC8([Moderate Lost/Found])
+    UC9([View System Analytics])
+
+    %% Associations
+    Student --> UC1
+    Student --> UC2
+    Student --> UC3
+    Student --> UC4
+
+    Admin --> UC5
+    Admin --> UC6
+    Admin --> UC7
+    Admin --> UC8
+    Admin --> UC9
 ```
 
 ### Component Diagram
