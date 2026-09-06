@@ -17,7 +17,7 @@ export default function Button({
     secondary: "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 focus:ring-slate-500",
     danger: "bg-red-500 hover:bg-red-600 text-white hover:shadow-lg hover:shadow-red-500/20 focus:ring-red-500",
     success: "bg-emerald-500 hover:bg-emerald-600 text-white hover:shadow-lg hover:shadow-emerald-500/20 focus:ring-emerald-500",
-    outline: "border border-slate-200 dark:border-dark-border text-slate-600 dark:text-slate-350 hover:bg-slate-50 dark:hover:bg-slate-800/60 focus:ring-primary-500",
+    outline: "border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800/90 text-slate-700 dark:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-700 focus:ring-primary-500 shadow-xs",
   };
 
   const sizes = {

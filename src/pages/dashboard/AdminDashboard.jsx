@@ -186,7 +186,7 @@ export default function AdminDashboard() {
           <h2 className="text-xl md:text-2xl font-black font-display text-slate-800 dark:text-white tracking-tight">
             Administrator Analytics Dashboard
           </h2>
-          <p className="text-slate-400 dark:text-slate-500 text-xs font-semibold uppercase tracking-wider mt-1">
+          <p className="text-slate-500 dark:text-slate-400 text-xs font-semibold uppercase tracking-wider mt-1">
             System overview & moderations
           </p>
         </div>
@@ -217,7 +217,7 @@ export default function AdminDashboard() {
             <FiUsers className="text-xl" />
           </div>
           <div>
-            <p className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold uppercase tracking-wider">Total Students</p>
+            <p className="text-[10px] text-slate-500 dark:text-slate-300 font-bold uppercase tracking-wider">Total Students</p>
             <h4 className="text-lg font-extrabold text-slate-800 dark:text-white mt-0.5">{kpis.totalStudents}</h4>
           </div>
         </div>
@@ -227,7 +227,7 @@ export default function AdminDashboard() {
             <FiAlertOctagon className="text-xl" />
           </div>
           <div>
-            <p className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold uppercase tracking-wider">Active Tickets</p>
+            <p className="text-[10px] text-slate-500 dark:text-slate-300 font-bold uppercase tracking-wider">Active Tickets</p>
             <h4 className="text-lg font-extrabold text-slate-800 dark:text-white mt-0.5">{kpis.activeComplaints}</h4>
           </div>
         </div>
@@ -237,8 +237,8 @@ export default function AdminDashboard() {
             <FiSearch className="text-xl" />
           </div>
           <div>
-            <p className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold uppercase tracking-wider">Pending L&F Moderation</p>
-            <h4 className="text-lg font-extrabold text-slate-850 dark:text-white mt-0.5">{kpis.pendingLostFound}</h4>
+            <p className="text-[10px] text-slate-500 dark:text-slate-300 font-bold uppercase tracking-wider">Pending L&F Moderation</p>
+            <h4 className="text-lg font-extrabold text-slate-800 dark:text-white mt-0.5">{kpis.pendingLostFound}</h4>
           </div>
         </div>
 
@@ -247,7 +247,7 @@ export default function AdminDashboard() {
             <FiCalendar className="text-xl" />
           </div>
           <div>
-            <p className="text-[10px] text-slate-400 dark:text-slate-500 font-semibold uppercase tracking-wider">Total Events</p>
+            <p className="text-[10px] text-slate-500 dark:text-slate-300 font-bold uppercase tracking-wider">Total Events</p>
             <h4 className="text-lg font-extrabold text-slate-800 dark:text-white mt-0.5">{kpis.totalEvents}</h4>
           </div>
         </div>
