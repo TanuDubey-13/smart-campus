@@ -46,14 +46,20 @@ export const lostFoundService = {
       const items = mockDb.get('lostFound');
       return items.filter(item => item.isApproved && item.status === 'active');
     } else {
-      const q = query(
-        collection(db, 'lostFound'),
-        where('isApproved', '==', true),
-        where('status', '==', 'active'),
-        orderBy('createdAt', 'desc')
-      );
-      const snapshot = await getDocs(q);
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      try {
+        const q = query(
+          collection(db, 'lostFound'),
+          where('isApproved', '==', true)
+        );
+        const snapshot = await getDocs(q);
+        const list = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        return list
+          .filter(item => item.status === 'active')
+          .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+      } catch (err) {
+        console.error('getApprovedPosts error:', err);
+        return [];
+      }
     }
   },
 
@@ -63,13 +69,18 @@ export const lostFoundService = {
       const items = mockDb.get('lostFound');
       return items.filter(item => !item.isApproved);
     } else {
-      const q = query(
-        collection(db, 'lostFound'),
-        where('isApproved', '==', false),
-        orderBy('createdAt', 'desc')
-      );
-      const snapshot = await getDocs(q);
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      try {
+        const q = query(
+          collection(db, 'lostFound'),
+          where('isApproved', '==', false)
+        );
+        const snapshot = await getDocs(q);
+        const list = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        return list.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+      } catch (err) {
+        console.error('getPendingModeration error:', err);
+        return [];
+      }
     }
   },
 
@@ -79,13 +90,18 @@ export const lostFoundService = {
       const items = mockDb.get('lostFound');
       return items.filter(item => item.reporterId === userId);
     } else {
-      const q = query(
-        collection(db, 'lostFound'),
-        where('reporterId', '==', userId),
-        orderBy('createdAt', 'desc')
-      );
-      const snapshot = await getDocs(q);
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      try {
+        const q = query(
+          collection(db, 'lostFound'),
+          where('reporterId', '==', userId)
+        );
+        const snapshot = await getDocs(q);
+        const list = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        return list.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+      } catch (err) {
+        console.error('getMyPosts error:', err);
+        return [];
+      }
     }
   },
 

@@ -60,20 +60,21 @@ export default function LostFoundList() {
     }
   });
 
-  const fetchPosts = async () => {
+  const fetchPosts = async (tabOverride) => {
+    const tabToFetch = tabOverride || activeTab;
     setLoading(true);
     try {
       let data = [];
-      if (activeTab === 'all') {
+      if (tabToFetch === 'all') {
         data = await lostFoundService.getApprovedPosts();
-      } else if (activeTab === 'my') {
+      } else if (tabToFetch === 'my') {
         data = await lostFoundService.getMyPosts(user.uid);
-      } else if (activeTab === 'moderator' && isAdmin) {
+      } else if (tabToFetch === 'moderator' && isAdmin) {
         data = await lostFoundService.getPendingModeration();
       }
       setPosts(data);
     } catch (err) {
-      console.error(err);
+      console.error('fetchPosts error:', err);
     } finally {
       setLoading(false);
     }
@@ -137,7 +138,7 @@ export default function LostFoundList() {
   const onSubmit = async (data) => {
     if (fileError) return;
 
-    // Convert all selected images to base64 array
+    // Convert and compress selected images to base64 array
     let base64Images = [];
     if (selectedFiles.length > 0) {
       try {
@@ -145,8 +146,28 @@ export default function LostFoundList() {
           selectedFiles.map(file => {
             return new Promise((resolve) => {
               const reader = new FileReader();
-              reader.onloadend = () => resolve(reader.result);
               reader.readAsDataURL(file);
+              reader.onload = (event) => {
+                const img = new Image();
+                img.src = event.target.result;
+                img.onload = () => {
+                  const canvas = document.createElement('canvas');
+                  const MAX_WIDTH = 800;
+                  let width = img.width;
+                  let height = img.height;
+                  if (width > MAX_WIDTH) {
+                    height = Math.round((height * MAX_WIDTH) / width);
+                    width = MAX_WIDTH;
+                  }
+                  canvas.width = width;
+                  canvas.height = height;
+                  const ctx = canvas.getContext('2d');
+                  ctx.drawImage(img, 0, 0, width, height);
+                  resolve(canvas.toDataURL('image/jpeg', 0.7));
+                };
+                img.onerror = () => resolve(event.target.result);
+              };
+              reader.onerror = () => resolve('');
             });
           })
         );
@@ -158,7 +179,7 @@ export default function LostFoundList() {
     try {
       const payload = {
         ...data,
-        imageUrls: base64Images
+        imageUrls: base64Images.filter(Boolean)
       };
 
       await lostFoundService.createPost(payload, user);
@@ -181,8 +202,10 @@ export default function LostFoundList() {
       setPreviewUrls([]);
       setIsFormOpen(false);
       
-      // Refresh list
-      fetchPosts();
+      // Auto switch to "My Submissions" tab so user immediately sees their post
+      const nextTab = user.role === 'admin' ? 'all' : 'my';
+      setActiveTab(nextTab);
+      fetchPosts(nextTab);
     } catch (err) {
       Swal.fire({
         icon: 'error',
@@ -572,6 +595,15 @@ export default function LostFoundList() {
                 }`}>
                   {post.type}
                 </span>
+
+                {/* Approval Status Badge in My Submissions */}
+                {activeTab === 'my' && (
+                  <span className={`absolute top-3 right-3 text-[9px] px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider shadow-md ${
+                    post.isApproved ? 'bg-emerald-500 text-white' : 'bg-amber-500 text-white animate-pulse'
+                  }`}>
+                    {post.isApproved ? 'Approved' : 'Pending Review'}
+                  </span>
+                )}
 
                 {/* Images Count indicator if > 1 */}
                 {post.imageUrls && post.imageUrls.length > 1 && (
