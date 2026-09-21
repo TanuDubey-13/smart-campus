@@ -2,6 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { mockDb } from '../../firebase/helpers';
+import { complaintService } from '../../services/complaintService';
+import { noticeService } from '../../services/noticeService';
+import { eventService } from '../../services/eventService';
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
 import { 
@@ -32,28 +35,51 @@ export default function StudentDashboard() {
   const [upcomingEvents, setUpcomingEvents] = useState([]);
 
   useEffect(() => {
-    // Fetch complaints
-    const complaints = mockDb.get('complaints');
-    const studentComplaints = complaints.filter(c => c.studentId === user.uid);
-    const activeComplaints = studentComplaints.filter(c => c.status !== 'resolved' && c.status !== 'rejected').length;
+    const fetchStudentData = async () => {
+      if (!user?.uid) return;
+      try {
+        let studentComplaints = [];
+        let notices = [];
+        let events = [];
 
-    // Fetch notices
-    const notices = mockDb.get('notices');
-    
-    // Fetch events
-    const events = mockDb.get('events');
-    const upcoming = events.filter(e => new Date(e.date) > new Date());
+        try {
+          studentComplaints = await complaintService.getComplaints(user.uid, 'student');
+        } catch (err) {
+          const all = mockDb.get('complaints') || [];
+          studentComplaints = all.filter(c => c.studentId === user.uid);
+        }
 
-    setStats({
-      activeComplaints,
-      upcomingEvents: upcoming.length,
-      totalNotices: notices.length,
-    });
+        try {
+          notices = await noticeService.getNotices();
+        } catch (err) {
+          notices = mockDb.get('notices') || [];
+        }
 
-    setRecentNotices(notices.slice(0, 3));
-    setMyComplaints(studentComplaints.slice(0, 3));
-    setUpcomingEvents(upcoming.slice(0, 2));
-  }, [user.uid]);
+        try {
+          events = await eventService.getEvents();
+        } catch (err) {
+          events = mockDb.get('events') || [];
+        }
+
+        const activeComplaints = studentComplaints.filter(c => c.status !== 'resolved' && c.status !== 'rejected').length;
+        const upcoming = events.filter(e => new Date(e.date) > new Date());
+
+        setStats({
+          activeComplaints,
+          upcomingEvents: upcoming.length,
+          totalNotices: notices.length,
+        });
+
+        setRecentNotices(notices.slice(0, 3));
+        setMyComplaints(studentComplaints.slice(0, 3));
+        setUpcomingEvents(upcoming.slice(0, 2));
+      } catch (err) {
+        console.error('Failed to load student dashboard data:', err);
+      }
+    };
+
+    fetchStudentData();
+  }, [user?.uid]);
 
   // Quick Action card details
   const actions = [

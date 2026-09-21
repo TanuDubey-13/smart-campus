@@ -2,6 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { mockDb } from '../../firebase/helpers';
+import { complaintService } from '../../services/complaintService';
+import { lostFoundService } from '../../services/lostFoundService';
+import { eventService } from '../../services/eventService';
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
 import { Pie, Bar } from 'react-chartjs-2';
@@ -53,85 +56,110 @@ export default function AdminDashboard() {
   const [recentLogs, setRecentLogs] = useState([]);
 
   useEffect(() => {
-    // Fetch data from mock database
-    const users = mockDb.get('users');
-    const complaints = mockDb.get('complaints');
-    const lostFound = mockDb.get('lostFound');
-    const events = mockDb.get('events');
-    const logs = mockDb.get('activityLogs');
+    const fetchAdminData = async () => {
+      try {
+        let users = mockDb.get('users') || [];
+        let complaints = [];
+        let pendingLF = [];
+        let events = [];
+        let logs = mockDb.get('activityLogs') || [];
 
-    // KPIS
-    const studentsCount = users.filter(u => u.role === 'student').length;
-    const activeComp = complaints.filter(c => c.status !== 'resolved' && c.status !== 'rejected').length;
-    const pendingLF = lostFound.filter(lf => !lf.isApproved).length;
-
-    setKpis({
-      totalStudents: studentsCount,
-      activeComplaints: activeComp,
-      pendingLostFound: pendingLF,
-      totalEvents: events.length
-    });
-
-    // 1. Chart 1: Complaints by Category
-    const categories = ['academic', 'hostel', 'maintenance', 'security', 'others'];
-    const categoryCounts = categories.map(cat => complaints.filter(c => c.category === cat).length);
-    
-    setComplaintCategoryData({
-      labels: ['Academic', 'Hostel', 'Maintenance', 'Security', 'Others'],
-      datasets: [
-        {
-          label: 'Complaints by Category',
-          data: categoryCounts,
-          backgroundColor: [
-            'rgba(14, 165, 233, 0.65)',  // sky-500
-            'rgba(168, 85, 247, 0.65)',  // purple-500
-            'rgba(245, 158, 11, 0.65)',  // amber-500
-            'rgba(239, 68, 68, 0.65)',   // red-500
-            'rgba(100, 116, 139, 0.65)'  // slate-500
-          ],
-          borderColor: [
-            '#0ea5e9',
-            '#a855f7',
-            '#f59e0b',
-            '#ef4444',
-            '#64748b'
-          ],
-          borderWidth: 1.5,
+        try {
+          complaints = await complaintService.getComplaints(user?.uid, 'admin');
+        } catch (err) {
+          complaints = mockDb.get('complaints') || [];
         }
-      ]
-    });
 
-    // 2. Chart 2: Complaints by Status
-    const statuses = ['pending', 'in-progress', 'resolved', 'rejected'];
-    const statusCounts = statuses.map(st => complaints.filter(c => c.status === st).length);
-    
-    setComplaintStatusData({
-      labels: ['Pending', 'In Progress', 'Resolved', 'Rejected'],
-      datasets: [
-        {
-          label: 'Number of Tickets',
-          data: statusCounts,
-          backgroundColor: [
-            'rgba(148, 163, 184, 0.65)', // slate
-            'rgba(234, 179, 8, 0.65)',   // yellow
-            'rgba(16, 185, 129, 0.65)',  // emerald
-            'rgba(239, 68, 68, 0.65)'    // red
-          ],
-          borderColor: [
-            '#94a3b8',
-            '#eab308',
-            '#10b981',
-            '#ef4444'
-          ],
-          borderWidth: 1.5
+        try {
+          pendingLF = await lostFoundService.getPendingModeration();
+        } catch (err) {
+          const lf = mockDb.get('lostFound') || [];
+          pendingLF = lf.filter(i => !i.isApproved);
         }
-      ]
-    });
 
-    // Logs
-    setRecentLogs(logs.slice(0, 5));
-    setLoading(false);
-  }, []);
+        try {
+          events = await eventService.getEvents();
+        } catch (err) {
+          events = mockDb.get('events') || [];
+        }
+
+        const studentsCount = users.filter(u => u.role === 'student').length;
+        const activeComp = complaints.filter(c => c.status !== 'resolved' && c.status !== 'rejected').length;
+
+        setKpis({
+          totalStudents: studentsCount || 1,
+          activeComplaints: activeComp,
+          pendingLostFound: pendingLF.length,
+          totalEvents: events.length
+        });
+
+        // 1. Chart 1: Complaints by Category
+        const categories = ['academic', 'hostel', 'maintenance', 'security', 'others'];
+        const categoryCounts = categories.map(cat => complaints.filter(c => c.category === cat).length);
+        
+        setComplaintCategoryData({
+          labels: ['Academic', 'Hostel', 'Maintenance', 'Security', 'Others'],
+          datasets: [
+            {
+              label: 'Complaints by Category',
+              data: categoryCounts,
+              backgroundColor: [
+                'rgba(14, 165, 233, 0.65)',  // sky-500
+                'rgba(168, 85, 247, 0.65)',  // purple-500
+                'rgba(245, 158, 11, 0.65)',  // amber-500
+                'rgba(239, 68, 68, 0.65)',   // red-500
+                'rgba(100, 116, 139, 0.65)'  // slate-500
+              ],
+              borderColor: [
+                '#0ea5e9',
+                '#a855f7',
+                '#f59e0b',
+                '#ef4444',
+                '#64748b'
+              ],
+              borderWidth: 1.5,
+            }
+          ]
+        });
+
+        // 2. Chart 2: Complaints by Status
+        const statuses = ['pending', 'in-progress', 'resolved', 'rejected'];
+        const statusCounts = statuses.map(st => complaints.filter(c => c.status === st).length);
+        
+        setComplaintStatusData({
+          labels: ['Pending', 'In Progress', 'Resolved', 'Rejected'],
+          datasets: [
+            {
+              label: 'Number of Tickets',
+              data: statusCounts,
+              backgroundColor: [
+                'rgba(148, 163, 184, 0.65)', // slate
+                'rgba(234, 179, 8, 0.65)',   // yellow
+                'rgba(16, 185, 129, 0.65)',  // emerald
+                'rgba(239, 68, 68, 0.65)'    // red
+              ],
+              borderColor: [
+                '#94a3b8',
+                '#eab308',
+                '#10b981',
+                '#ef4444'
+              ],
+              borderWidth: 1.5
+            }
+          ]
+        });
+
+        // Logs
+        setRecentLogs((logs || []).slice(0, 5));
+      } catch (err) {
+        console.error('Failed to load admin dashboard data:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAdminData();
+  }, [user?.uid]);
 
   if (loading) {
     return (

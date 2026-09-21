@@ -92,7 +92,7 @@ export default function EmergencyContacts() {
               placeholder="Search by contact name, department..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 rounded-xl border border-slate-250 dark:border-dark-border bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 text-xs"
+              className="w-full pl-9 pr-4 py-2 rounded-xl border border-slate-200 dark:border-dark-border bg-white dark:bg-slate-900 text-slate-900 dark:text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-primary-500/20 text-xs"
             />
           </div>
 
@@ -100,7 +100,7 @@ export default function EmergencyContacts() {
             <select
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
-              className="w-full px-3 py-2 rounded-xl border border-slate-250 dark:border-dark-border bg-white dark:bg-slate-900 text-slate-805 dark:text-white text-xs cursor-pointer focus:outline-none"
+              className="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-dark-border bg-white dark:bg-slate-900 text-slate-800 dark:text-white text-xs cursor-pointer focus:outline-none"
             >
               <option value="all">All Contacts</option>
               <option value="emergency">Critical Emergency</option>
@@ -116,17 +116,17 @@ export default function EmergencyContacts() {
         {filteredContacts.map((contact) => (
           <div 
             key={contact.id}
-            className="p-5 rounded-2xl bg-white dark:bg-dark-card border border-slate-205 dark:border-dark-border shadow-xs flex items-center justify-between gap-4 transition-all duration-300 hover:shadow-md"
+            className="p-5 rounded-2xl bg-white dark:bg-dark-card border border-slate-200 dark:border-dark-border shadow-xs flex items-center justify-between gap-4 transition-all duration-300 hover:shadow-md"
           >
             <div className="flex items-center gap-4 min-w-0">
               <div className="p-3 bg-slate-50 dark:bg-slate-900 rounded-xl shrink-0">
                 {getIcon(contact.icon)}
               </div>
               <div className="min-w-0">
-                <h4 className="font-extrabold text-slate-850 dark:text-slate-100 text-sm truncate">
+                <h4 className="font-extrabold text-slate-800 dark:text-slate-100 text-sm truncate">
                   {contact.name}
                 </h4>
-                <p className="text-[11px] text-slate-405 dark:text-slate-500 mt-1 truncate">
+                <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-1 truncate">
                   Phone: {contact.number}
                 </p>
                 <span className={`inline-block mt-2 text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${
@@ -145,7 +145,7 @@ export default function EmergencyContacts() {
                 e.preventDefault();
                 handleCallToast(contact.name, contact.number);
               }}
-              className="p-3 bg-primary-100 dark:bg-primary-950/40 hover:bg-primary-500 hover:text-white dark:hover:bg-primary-500 text-primary-550 dark:text-primary-400 rounded-xl shrink-0 cursor-pointer transition-all shadow-sm"
+              className="p-3 bg-primary-100 dark:bg-primary-950/40 hover:bg-primary-500 hover:text-white dark:hover:bg-primary-500 text-primary-600 dark:text-primary-400 rounded-xl shrink-0 cursor-pointer transition-all shadow-sm"
               title={`Call ${contact.name}`}
             >
               <FiPhoneCall className="text-lg" />

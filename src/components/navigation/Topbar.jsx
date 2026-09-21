@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { useTheme } from '../../hooks/useTheme';
 import { mockDb } from '../../firebase/helpers';
+import { noticeService } from '../../services/noticeService';
 import { 
   FiBell, 
   FiSun, 
@@ -40,10 +41,22 @@ export default function Topbar({ setSidebarOpen, collapsed, setCollapsed }) {
 
   // Fetch announcements for notifications panel
   useEffect(() => {
-    // Show pinned or emergency notices
-    const notices = mockDb.get('notices');
-    const emergencyNotices = notices.filter(n => n.category === 'emergency' || n.isPinned);
-    setAlerts(emergencyNotices);
+    const fetchAlerts = async () => {
+      try {
+        let notices = [];
+        try {
+          notices = await noticeService.getNotices();
+        } catch (err) {
+          notices = mockDb.get('notices') || [];
+        }
+        const emergencyNotices = (notices || []).filter(n => n.category === 'emergency' || n.isPinned);
+        setAlerts(emergencyNotices);
+      } catch (err) {
+        console.error('Failed to load topbar alerts:', err);
+      }
+    };
+
+    fetchAlerts();
   }, []);
 
   return (

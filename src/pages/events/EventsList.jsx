@@ -95,7 +95,8 @@ export default function EventsList() {
   };
 
   const handleRegisterToggle = async (event) => {
-    const isRegistered = event.registeredStudents.includes(user.uid);
+    if (!user) return;
+    const isRegistered = (event.registeredStudents || []).includes(user.uid);
     try {
       if (isRegistered) {
         await eventService.unregisterFromEvent(event.id, user.uid);
@@ -434,11 +435,13 @@ export default function EventsList() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {filteredEvents.map((evt) => {
-            const isRegistered = evt.registeredStudents.includes(user.uid);
-            const isSeatsFull = evt.registeredCount >= evt.maxSeats;
+            const isRegistered = user ? (evt.registeredStudents || []).includes(user.uid) : false;
+            const registeredCount = evt.registeredCount || 0;
+            const maxSeats = evt.maxSeats || 100;
+            const isSeatsFull = registeredCount >= maxSeats;
             const eventDate = new Date(evt.date);
             const isCompleted = eventDate < new Date();
-            const seatsUtilizationPercent = Math.min(100, Math.floor((evt.registeredCount / evt.maxSeats) * 100));
+            const seatsUtilizationPercent = Math.min(100, Math.floor((registeredCount / maxSeats) * 100));
 
             return (
               <div 

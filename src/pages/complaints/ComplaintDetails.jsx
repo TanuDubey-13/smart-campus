@@ -133,7 +133,7 @@ export default function ComplaintDetails() {
               <span className={`text-[10px] px-2.5 py-1 rounded-full font-bold uppercase tracking-wider ${
                 complaint.status === 'resolved' ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-950/40' :
                 complaint.status === 'in-progress' ? 'bg-yellow-100 text-yellow-600 dark:bg-yellow-950/40' :
-                complaint.status === 'rejected' ? 'bg-red-100 text-red-650 dark:bg-red-950/40' :
+                complaint.status === 'rejected' ? 'bg-red-100 text-red-600 dark:bg-red-950/40' :
                 'bg-slate-200 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
               }`}>
                 {complaint.status}
@@ -142,22 +142,22 @@ export default function ComplaintDetails() {
           >
             {/* Meta attributes */}
             <div className="grid grid-cols-2 gap-4 border-b border-slate-100 dark:border-dark-border/60 pb-4 mb-4 text-xs">
-              <div className="flex items-center gap-2 text-slate-500 dark:text-slate-405">
+              <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
                 <FiBook className="text-slate-400" />
-                <span className="capitalize"><strong className="text-slate-700 dark:text-slate-350">Category:</strong> {complaint.category}</span>
+                <span className="capitalize"><strong className="text-slate-700 dark:text-slate-300">Category:</strong> {complaint.category}</span>
               </div>
-              <div className="flex items-center gap-2 text-slate-500 dark:text-slate-405">
+              <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
                 <FiFlag className="text-slate-400" />
-                <span className="capitalize"><strong className="text-slate-700 dark:text-slate-350">Priority:</strong> {complaint.priority}</span>
+                <span className="capitalize"><strong className="text-slate-700 dark:text-slate-300">Priority:</strong> {complaint.priority}</span>
               </div>
-              <div className="flex items-center gap-2 text-slate-500 dark:text-slate-405">
+              <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
                 <FiUser className="text-slate-400" />
-                <span><strong className="text-slate-700 dark:text-slate-350">Filed by:</strong> {complaint.studentName}</span>
+                <span><strong className="text-slate-700 dark:text-slate-300">Filed by:</strong> {complaint.studentName}</span>
               </div>
-              <div className="flex items-center gap-2 text-slate-500 dark:text-slate-405">
+              <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
                 <FiClock className="text-slate-400" />
                 <span>
-                  <strong className="text-slate-700 dark:text-slate-350">Date:</strong> {new Date(complaint.createdAt).toLocaleDateString()}
+                  <strong className="text-slate-700 dark:text-slate-300">Date:</strong> {new Date(complaint.createdAt).toLocaleDateString()}
                 </span>
               </div>
             </div>
@@ -168,7 +168,7 @@ export default function ComplaintDetails() {
                 <h4 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2">
                   Detailed Report
                 </h4>
-                <p className="text-sm text-slate-705 dark:text-slate-300 leading-relaxed bg-slate-50 dark:bg-slate-900/30 p-4 rounded-xl border border-slate-100 dark:border-dark-border/40">
+                <p className="text-sm text-slate-700 dark:text-slate-300 leading-relaxed bg-slate-50 dark:bg-slate-900/30 p-4 rounded-xl border border-slate-100 dark:border-dark-border/40">
                   {complaint.description}
                 </p>
               </div>
@@ -241,11 +241,11 @@ export default function ComplaintDetails() {
           {/* Admin response block if resolved/rejected */}
           {complaint.adminResponse && (
             <Card title="Official Administration Remarks" className="border-emerald-500/20">
-              <div className="flex gap-3 text-emerald-600 dark:text-emerald-450">
+              <div className="flex gap-3 text-emerald-600 dark:text-emerald-400">
                 <FiCornerDownRight className="text-lg shrink-0 mt-0.5" />
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-wider">Resolution Response</p>
-                  <p className="text-sm text-slate-700 dark:text-slate-350 mt-1 italic">
+                  <p className="text-sm text-slate-700 dark:text-slate-300 mt-1 italic">
                     "{complaint.adminResponse}"
                   </p>
                 </div>
@@ -257,7 +257,7 @@ export default function ComplaintDetails() {
         {/* Right Side: Timeline Track Panel */}
         <Card title="Progress History Timeline" subtitle="Updated logs in real-time" className="h-fit">
           <div className="relative pl-6 space-y-6 border-l border-slate-200 dark:border-dark-border/80">
-            {complaint.timeline.map((event, index) => {
+            {(complaint.timeline || []).map((event, index) => {
               const colors = {
                 pending: 'bg-slate-300 ring-slate-100 dark:ring-slate-900',
                 'in-progress': 'bg-yellow-500 ring-yellow-100 dark:ring-yellow-950/40',
@@ -271,7 +271,7 @@ export default function ComplaintDetails() {
                   <span className={`absolute -left-[30px] top-1.5 w-3 h-3 rounded-full ring-4 ${colors[event.status] || 'bg-slate-400'}`}></span>
                   
                   <div className="text-xs">
-                    <span className="font-bold text-slate-750 dark:text-slate-100 uppercase tracking-wide block">
+                    <span className="font-bold text-slate-800 dark:text-slate-100 uppercase tracking-wide block">
                       {event.status}
                     </span>
                     <p className="text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">

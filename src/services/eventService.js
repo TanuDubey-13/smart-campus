@@ -1,6 +1,6 @@
 import { useMock, db } from '../firebase/config';
 import { mockDb } from '../firebase/helpers';
-import { collection, doc, addDoc, getDocs, updateDoc, deleteDoc, query, orderBy } from 'firebase/firestore';
+import { collection, doc, addDoc, getDoc, getDocs, updateDoc, deleteDoc, query, arrayUnion, arrayRemove, increment } from 'firebase/firestore';
 
 export const eventService = {
   createEvent: async (eventData, adminUser) => {
@@ -43,9 +43,15 @@ export const eventService = {
       await new Promise(resolve => setTimeout(resolve, 400));
       return mockDb.get('events');
     } else {
-      const q = query(collection(db, 'events'), orderBy('date', 'asc'));
-      const snapshot = await getDocs(q);
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      try {
+        const q = query(collection(db, 'events'));
+        const snapshot = await getDocs(q);
+        const list = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        return list.sort((a, b) => new Date(a.date || 0) - new Date(b.date || 0));
+      } catch (err) {
+        console.error('getEvents error:', err);
+        return [];
+      }
     }
   },
 
@@ -56,7 +62,8 @@ export const eventService = {
       const idx = events.findIndex(e => e.id === eventId);
       if (idx !== -1) {
         const event = events[idx];
-        if (event.registeredStudents.includes(userId)) {
+        const registered = event.registeredStudents || [];
+        if (registered.includes(userId)) {
           throw new Error('You are already registered.');
         }
         if (event.registeredCount >= event.maxSeats) {
@@ -66,7 +73,7 @@ export const eventService = {
         const updated = {
           ...event,
           registeredCount: event.registeredCount + 1,
-          registeredStudents: [...event.registeredStudents, userId]
+          registeredStudents: [...registered, userId]
         };
         events[idx] = updated;
         mockDb.save('events', events);
@@ -74,9 +81,27 @@ export const eventService = {
       }
       throw new Error('Event not found.');
     } else {
-      // Firebase update details omitted here for mock integration, but follows same format
       const docRef = doc(db, 'events', eventId);
-      // ...
+      const snap = await getDoc(docRef);
+      if (!snap.exists()) throw new Error('Event not found.');
+      const data = snap.data();
+      const registered = data.registeredStudents || [];
+      if (registered.includes(userId)) {
+        throw new Error('You are already registered.');
+      }
+      if ((data.registeredCount || 0) >= (data.maxSeats || 100)) {
+        throw new Error('Seats are full.');
+      }
+      await updateDoc(docRef, {
+        registeredStudents: arrayUnion(userId),
+        registeredCount: increment(1)
+      });
+      return { 
+        id: eventId, 
+        ...data, 
+        registeredStudents: [...registered, userId], 
+        registeredCount: (data.registeredCount || 0) + 1 
+      };
     }
   },
 
@@ -87,14 +112,15 @@ export const eventService = {
       const idx = events.findIndex(e => e.id === eventId);
       if (idx !== -1) {
         const event = events[idx];
-        if (!event.registeredStudents.includes(userId)) {
+        const registered = event.registeredStudents || [];
+        if (!registered.includes(userId)) {
           throw new Error('You are not registered.');
         }
 
         const updated = {
           ...event,
           registeredCount: Math.max(0, event.registeredCount - 1),
-          registeredStudents: event.registeredStudents.filter(id => id !== userId)
+          registeredStudents: registered.filter(id => id !== userId)
         };
         events[idx] = updated;
         mockDb.save('events', events);
@@ -103,7 +129,23 @@ export const eventService = {
       throw new Error('Event not found.');
     } else {
       const docRef = doc(db, 'events', eventId);
-      // ...
+      const snap = await getDoc(docRef);
+      if (!snap.exists()) throw new Error('Event not found.');
+      const data = snap.data();
+      const registered = data.registeredStudents || [];
+      if (!registered.includes(userId)) {
+        throw new Error('You are not registered.');
+      }
+      await updateDoc(docRef, {
+        registeredStudents: arrayRemove(userId),
+        registeredCount: increment(-1)
+      });
+      return { 
+        id: eventId, 
+        ...data, 
+        registeredStudents: registered.filter(id => id !== userId), 
+        registeredCount: Math.max(0, (data.registeredCount || 0) - 1) 
+      };
     }
   },
 

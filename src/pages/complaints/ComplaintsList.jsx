@@ -79,10 +79,11 @@ export default function ComplaintsList() {
     let result = [...complaints];
 
     if (searchTerm) {
+      const term = searchTerm.toLowerCase();
       result = result.filter(c => 
-        c.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-        c.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        c.studentName.toLowerCase().includes(searchTerm.toLowerCase())
+        (c.title || '').toLowerCase().includes(term) || 
+        (c.description || '').toLowerCase().includes(term) ||
+        (c.studentName || '').toLowerCase().includes(term)
       );
     }
 
@@ -126,15 +127,35 @@ export default function ComplaintsList() {
 
     let base64Image = '';
     if (selectedFile) {
-      // Simulate file upload (convert to Base64 in Mock/local)
+      // Compress image client-side to ensure document stays safely under Firestore 1MB limit
       try {
         base64Image = await new Promise((resolve) => {
           const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result);
           reader.readAsDataURL(selectedFile);
+          reader.onload = (event) => {
+            const img = new Image();
+            img.src = event.target.result;
+            img.onload = () => {
+              const canvas = document.createElement('canvas');
+              const MAX_WIDTH = 800;
+              let width = img.width;
+              let height = img.height;
+              if (width > MAX_WIDTH) {
+                height = Math.round((height * MAX_WIDTH) / width);
+                width = MAX_WIDTH;
+              }
+              canvas.width = width;
+              canvas.height = height;
+              const ctx = canvas.getContext('2d');
+              ctx.drawImage(img, 0, 0, width, height);
+              resolve(canvas.toDataURL('image/jpeg', 0.7));
+            };
+            img.onerror = () => resolve(event.target.result);
+          };
+          reader.onerror = () => resolve('');
         });
       } catch (err) {
-        console.error('File reading failed:', err);
+        console.error('File reading and compression failed:', err);
       }
     }
 

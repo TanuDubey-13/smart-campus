@@ -50,23 +50,26 @@ export const complaintService = {
     if (useMock) {
       await new Promise(resolve => setTimeout(resolve, 400));
       const complaints = mockDb.get('complaints');
-      if (userRole === 'admin') {
-        return complaints;
-      }
-      return complaints.filter(c => c.studentId === userId);
+      const list = userRole === 'admin' ? complaints : complaints.filter(c => c.studentId === userId);
+      return list.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
     } else {
-      let q;
-      if (userRole === 'admin') {
-        q = query(collection(db, 'complaints'), orderBy('createdAt', 'desc'));
-      } else {
-        q = query(
-          collection(db, 'complaints'), 
-          where('studentId', '==', userId),
-          orderBy('createdAt', 'desc')
-        );
+      try {
+        let q;
+        if (userRole === 'admin') {
+          q = query(collection(db, 'complaints'));
+        } else {
+          q = query(
+            collection(db, 'complaints'), 
+            where('studentId', '==', userId)
+          );
+        }
+        const snapshot = await getDocs(q);
+        const list = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        return list.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+      } catch (err) {
+        console.error('getComplaints error:', err);
+        return [];
       }
-      const snapshot = await getDocs(q);
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     }
   },
 
